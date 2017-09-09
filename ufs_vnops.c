@@ -276,6 +276,9 @@ ufs_open(struct vop_open_args *ap)
 		return (EOPNOTSUPP);
 
 	ip = VTOI(vp);
+	if ((ip->i_mode & ISVTX) && (ap->a_mode & FWRITE)
+		&& (ip->i_uid == cred->cr_uid))
+		return (EPERM);
 	
 	/*
 	 * Files marked append-only must be opened for appending.
