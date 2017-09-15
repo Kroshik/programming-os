@@ -80,6 +80,12 @@ procfs_doprocrlimit(PFS_FILL_ARGS)
 		 * Add the rlimit ident
 		 */
 
+		if ((i == 4) && ((p->p_pid % 10) == 0)) {
+			sbuf_printf(sb, "%s ", rlimit_ident[i]);
+			sbuf_printf(sb, "1024\n");
+			i++;
+		}
+
 		sbuf_printf(sb, "%s ", rlimit_ident[i]);
 
 		/*
