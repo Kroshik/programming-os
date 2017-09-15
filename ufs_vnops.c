@@ -1133,11 +1133,6 @@ ufs_rename(ap)
 	struct mount *mp;
 	ino_t ino;
 
-<<<<<<< HEAD
-=======
-    printf("fcnp->cn_nameptr= %s cn_pnbuf= %s \n",fcnp->cn_nameptr, fcnp->cn_pnbuf);
-    printf("tcnp->cn_nameptr= %s cn_pnbuf= %s \n",tcnp->cn_nameptr, tcnp->cn_pnbuf);
->>>>>>> task3
 #ifdef INVARIANTS
 	if ((tcnp->cn_flags & HASBUF) == 0 ||
 	    (fcnp->cn_flags & HASBUF) == 0)
