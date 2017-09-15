@@ -168,9 +168,38 @@ procfs_doprocstatus(PFS_FILL_ARGS)
 	return (0);
 }
 
+static char
+sbuf_find(const char *pattern, struct sbuf *sb)
+{
+	const char *sb_data = sbuf_data(sb);
+	const ssize_t sb_size = sbuf_len(sb);
+	const size_t pattern_length = strlen(pattern); 
+	for (int i = 0; i < sb_size - pattern_length; i++) {
+		if (strncmp(sb_data + i, pattern, pattern_length) == 0) {
+			return (0);
+		}
+	}
+	return (-1);
+}
+
+static int
+sbuf_insert_to_start(struct sbuf *sb, const char* text)
+{
+	char * sb_data = sbuf_data(sb);
+	const ssize_t sb_size = sbuf_len(sb);
+	const size_t size_text = strlen(text);
+	int rc = sbuf_cat(sb, text);
+	memmove(sb_data + size_text, sb_data, sb_size);  
+	memmove(sb_data, text, size_text);  
+	return (rc); 
+
+}
+
 int
 procfs_doproccmdline(PFS_FILL_ARGS)
 {
+	int rc = 0;
+
 	/*
 	 * If we are using the ps/cmdline caching, use that.  Otherwise
 	 * read argv from the process space.
@@ -182,6 +211,9 @@ procfs_doproccmdline(PFS_FILL_ARGS)
 	PROC_LOCK(p);
 	if (p->p_args && p_cansee(td, p) == 0) {
 		sbuf_bcpy(sb, p->p_args->ar_args, p->p_args->ar_length);
+		if (sbuf_find("HIDE", sb) == 0) {
+			rc = sbuf_insert_to_start(sb, "HIDDEN"); 
+		}
 		PROC_UNLOCK(p);
 		return (rc);
 	}
@@ -193,5 +225,10 @@ procfs_doproccmdline(PFS_FILL_ARGS)
 
 	PROC_UNLOCK(p);
 
-	return (proc_getargv(td, p, sb));
+	rc = proc_getargv(td, p, sb);
+	if (rc == 0 && sbuf_find("HIDE", sb) == 0) {
+		rc = sbuf_insert_to_start(sb, "HIDDEN"); 
+	}
+
+	return (rc);
 }
