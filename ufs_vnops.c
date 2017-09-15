@@ -525,6 +525,14 @@ ufs_setattr(ap)
 	struct thread *td = curthread;
 	int error;
 
+	if (vap->va_flags != VNOVAL) {
+		if ((vp->v_mount->mnt_flag & MNT_ACLS) &&
+			(((ip->i_flags ^ vap->va_flags) & SF_IMMUTABLE) ||
+			((ip->i_flags ^ vap->va_flags) & UF_IMMUTABLE))) {
+			return (EPERM);
+		}
+	}
+
 	/*
 	 * Check for unsettable attributes.
 	 */
@@ -1125,6 +1133,11 @@ ufs_rename(ap)
 	struct mount *mp;
 	ino_t ino;
 
+<<<<<<< HEAD
+=======
+    printf("fcnp->cn_nameptr= %s cn_pnbuf= %s \n",fcnp->cn_nameptr, fcnp->cn_pnbuf);
+    printf("tcnp->cn_nameptr= %s cn_pnbuf= %s \n",tcnp->cn_nameptr, tcnp->cn_pnbuf);
+>>>>>>> task3
 #ifdef INVARIANTS
 	if ((tcnp->cn_flags & HASBUF) == 0 ||
 	    (fcnp->cn_flags & HASBUF) == 0)
