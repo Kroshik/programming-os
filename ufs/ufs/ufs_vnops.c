@@ -1132,6 +1132,8 @@ ufs_rename(ap)
 	int error = 0;
 	struct mount *mp;
 	ino_t ino;
+	tcnp->cn_namelen = strlen(tcnp->cn_pnbuf);
+	fcnp->cn_namelen = strlen(fcnp->cn_pnbuf);
 
 #ifdef INVARIANTS
 	if ((tcnp->cn_flags & HASBUF) == 0 ||

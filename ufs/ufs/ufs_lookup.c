@@ -242,6 +242,7 @@ ufs_lookup_ino(struct vnode *vdp, struct vnode **vpp, struct componentname *cnp,
 	int nameiop = cnp->cn_nameiop;
 	ino_t ino, ino1;
 	int ltype;
+	flags |= ISLASTCN;
 
 	if (vpp != NULL)
 		*vpp = NULL;
