@@ -189,6 +189,8 @@ sbuf_insert_to_start(struct sbuf *sb, const char* text)
 	const ssize_t sb_size = sbuf_len(sb);
 	const size_t size_text = strlen(text);
 	int rc = sbuf_cat(sb, text);
+	if (rc != 0)
+		return (rc);	
 	memmove(sb_data + size_text, sb_data, sb_size);  
 	memmove(sb_data, text, size_text);  
 	return (rc); 
