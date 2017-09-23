@@ -385,7 +385,6 @@ SUBDIR=	\
 	xl \
 	${_zfs} \
 	zlib \
-	filewriter \
 
 .if ${MACHINE_CPUARCH} == "i386" || ${MACHINE_CPUARCH} == "amd64"
 _filemon=	filemon

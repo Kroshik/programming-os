@@ -8,6 +8,9 @@
 #include <sys/fcntl.h>
 #include <sys/file.h>
 #include <sys/sysproto.h>
+#include <sys/filewriter.h>
+
+__FBSDID("$FreeBSD: releng/10.3/sys/kern/kern_filewriter.c 264366 2014-04-12 06:50:11Z dchagin $");
 
 // some simple defines to keep the code clean
 #define MODNAME "filewriter"
@@ -18,6 +21,10 @@
 static volatile int filewriter_hooked = 0;
 static int testfd = 0;
 
+void simple_test()
+{
+	printf("Hello, world");
+}
 
 static int
 filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
@@ -152,13 +159,3 @@ static int load_handler(module_t mod, int what, void *arg)
 
 	return(err);
 }
-
-// a struct that holds basic data on the module
-static moduledata_t filewriter_mod =
-{
-	"filewriter",      //module's name
-	load_handler, //execution entry point for the module
-	NULL
-};
-
-DECLARE_MODULE(filewriter, filewriter_mod, SI_SUB_KLD, SI_ORDER_ANY);
