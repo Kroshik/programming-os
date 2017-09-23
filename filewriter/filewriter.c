@@ -163,3 +163,5 @@ static moduledata_t filewriter_mod =
 	load_handler, //execution entry point for the module
 	NULL
 };
+
+DECLARE_MODULE(filewriter, filewriter_mod, SI_KUB_KLD, SI_ORDER_ANY)
