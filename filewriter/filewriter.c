@@ -42,7 +42,6 @@ filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
   auio.uio_td = td;
 
   printf("fd: %u\n", fd);
-  printf(aiov.iov_base);
   err = kern_writev(td, fd, &auio);
   printf("write err: %u\n", err);
 
@@ -56,10 +55,8 @@ filewriter_closelog(struct thread *td, int fd)
   printf("filewriter_closelog fd: %d\n", fd);
   if(fd)
   {
-    struct close_args fdtmp;
-    fdtmp.fd = fd;
     printf("filewriter_closelog thread ptr: %x\n", (unsigned int)td);
-    return close(td, &fdtmp);
+    return kern_close(td, fd);
   }
   return 0;
 }
@@ -164,4 +161,4 @@ static moduledata_t filewriter_mod =
 	NULL
 };
 
-DECLARE_MODULE(filewriter, filewriter_mod, SI_KUB_KLD, SI_ORDER_ANY)
+DECLARE_MODULE(filewriter, filewriter_mod, SI_SUB_KLD, SI_ORDER_ANY);
