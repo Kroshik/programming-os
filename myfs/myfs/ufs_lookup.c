@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_lookup.c 276500 2015-01-01 10:44:20Z kib $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_lookup.c 276500 2015-01-01 10:44:20Z kib $");
 
 #include "opt_ufs.h"
 #include "opt_quota.h"
@@ -55,15 +55,15 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_lookup.c 276500 2015-01-01 10:44
 #include <vm/vm.h>
 #include <vm/vm_extern.h>
 
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/dir.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/dir.h>
 #ifdef UFS_DIRHASH
-#include <ufs/ufs/dirhash.h>
+#include <myfs/myfs/dirhash.h>
 #endif
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/ufs_extern.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/ufs_extern.h>
 
 #ifdef DIAGNOSTIC
 static int	dirchk = 1;

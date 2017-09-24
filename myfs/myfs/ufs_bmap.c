@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_bmap.c 284021 2015-06-05 08:36:25Z kib $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_bmap.c 284021 2015-06-05 08:36:25Z kib $");
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -47,11 +47,11 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_bmap.c 284021 2015-06-05 08:36:2
 #include <sys/resourcevar.h>
 #include <sys/stat.h>
 
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/ufs_extern.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/ufs_extern.h>
 
 /*
  * Bmap converts the logical block number of a file to its physical block

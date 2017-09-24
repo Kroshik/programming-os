@@ -38,7 +38,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_extattr.c 252438 2013-07-01 04:06:40Z gleb $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_extattr.c 252438 2013-07-01 04:06:40Z gleb $");
 
 #include "opt_ufs.h"
 
@@ -60,12 +60,12 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_extattr.c 252438 2013-07-01 04:0
 
 #include <vm/uma.h>
 
-#include <ufs/ufs/dir.h>
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/ufs_extern.h>
+#include <myfs/myfs/dir.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/ufs_extern.h>
 
 #ifdef UFS_EXTATTR
 

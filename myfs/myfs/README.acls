@@ -1,4 +1,4 @@
-$FreeBSD: releng/10.3/sys/ufs/ufs/README.acls 105456 2002-10-19 16:09:16Z rwatson $
+$FreeBSD: releng/10.3/sys/myfs/myfs/README.acls 105456 2002-10-19 16:09:16Z rwatson $
 
   UFS Access Control Lists Copyright
 

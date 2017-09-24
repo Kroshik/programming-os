@@ -32,7 +32,7 @@
  * SUCH DAMAGE.
  *
  *	@(#)inode.h	8.9 (Berkeley) 5/14/95
- * $FreeBSD: releng/10.3/sys/ufs/ufs/inode.h 283640 2015-05-28 00:11:36Z mckusick $
+ * $FreeBSD: releng/10.3/sys/myfs/myfs/inode.h 283640 2015-05-28 00:11:36Z mckusick $
  */
 
 #ifndef _UFS_UFS_INODE_H_
@@ -40,10 +40,10 @@
 
 #include <sys/lock.h>
 #include <sys/queue.h>
-#include <ufs/ufs/dinode.h>
+#include <myfs/myfs/dinode.h>
 
 /*
- * This must agree with the definition in <ufs/ufs/dir.h>.
+ * This must agree with the definition in <myfs/myfs/dir.h>.
  */
 #define	doff_t		int32_t
 

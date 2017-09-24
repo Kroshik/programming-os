@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_inode.c 234612 2012-04-23 17:54:49Z trasz $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_inode.c 234612 2012-04-23 17:54:49Z trasz $");
 
 #include "opt_quota.h"
 #include "opt_ufs.h"
@@ -48,17 +48,17 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_inode.c 234612 2012-04-23 17:54:
 #include <sys/malloc.h>
 #include <sys/mutex.h>
 
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/ufs_extern.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/ufs_extern.h>
 #ifdef UFS_DIRHASH
-#include <ufs/ufs/dir.h>
-#include <ufs/ufs/dirhash.h>
+#include <myfs/myfs/dir.h>
+#include <myfs/myfs/dirhash.h>
 #endif
 #ifdef UFS_GJOURNAL
-#include <ufs/ufs/gjournal.h>
+#include <myfs/myfs/gjournal.h>
 #endif
 
 /*

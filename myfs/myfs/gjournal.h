@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $FreeBSD: releng/10.3/sys/ufs/ufs/gjournal.h 262779 2014-03-05 04:23:19Z pfg $
+ * $FreeBSD: releng/10.3/sys/myfs/myfs/gjournal.h 262779 2014-03-05 04:23:19Z pfg $
  */
 
 #ifndef _UFS_UFS_GJOURNAL_H_

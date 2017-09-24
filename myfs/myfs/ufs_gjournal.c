@@ -25,7 +25,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_gjournal.c 197408 2009-09-22 16:22:05Z rdivacky $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_gjournal.c 197408 2009-09-22 16:22:05Z rdivacky $");
 
 #include "opt_ufs.h"
 
@@ -37,11 +37,11 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_gjournal.c 197408 2009-09-22 16:
 #include <sys/mount.h>
 #include <sys/mutex.h>
 
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/gjournal.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/gjournal.h>
 
 #include <ufs/ffs/fs.h>
 #include <ufs/ffs/ffs_extern.h>

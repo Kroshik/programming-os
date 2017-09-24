@@ -31,7 +31,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_acl.c 241011 2012-09-27 23:30:49Z mdf $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_acl.c 241011 2012-09-27 23:30:49Z mdf $");
 
 #include "opt_ufs.h"
 #include "opt_quota.h"
@@ -46,13 +46,13 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_acl.c 241011 2012-09-27 23:30:49
 #include <sys/event.h>
 #include <sys/extattr.h>
 
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/acl.h>
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/dir.h>
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/ufs_extern.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/acl.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/dir.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/ufs_extern.h>
 #include <ufs/ffs/fs.h>
 
 #ifdef UFS_ACL

@@ -352,6 +352,7 @@ SUBDIR=	\
 	udf \
 	udf_iconv \
 	ufs \
+	myfs \
 	unionfs \
 	usb \
 	utopia \

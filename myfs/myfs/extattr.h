@@ -25,7 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $FreeBSD: releng/10.3/sys/ufs/ufs/extattr.h 262779 2014-03-05 04:23:19Z pfg $
+ * $FreeBSD: releng/10.3/sys/myfs/myfs/extattr.h 262779 2014-03-05 04:23:19Z pfg $
  */
 /*
  * Developed by the TrustedBSD Project.

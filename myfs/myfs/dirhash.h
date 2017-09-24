@@ -22,7 +22,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $FreeBSD: releng/10.3/sys/ufs/ufs/dirhash.h 262779 2014-03-05 04:23:19Z pfg $
+ * $FreeBSD: releng/10.3/sys/myfs/myfs/dirhash.h 262779 2014-03-05 04:23:19Z pfg $
  */
 
 #ifndef _UFS_UFS_DIRHASH_H_

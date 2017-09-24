@@ -28,7 +28,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_dirhash.c 284021 2015-06-05 08:36:25Z kib $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_dirhash.c 284021 2015-06-05 08:36:25Z kib $");
 
 #include "opt_ufs.h"
 
@@ -53,13 +53,13 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_dirhash.c 284021 2015-06-05 08:3
 #include <sys/time.h>
 #include <vm/uma.h>
 
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/dir.h>
-#include <ufs/ufs/dirhash.h>
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/ufs_extern.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/dir.h>
+#include <myfs/myfs/dirhash.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/ufs_extern.h>
 
 #define WRAPINCR(val, limit)	(((val) + 1 == (limit)) ? 0 : ((val) + 1))
 #define WRAPDECR(val, limit)	(((val) == 0) ? ((limit) - 1) : ((val) - 1))

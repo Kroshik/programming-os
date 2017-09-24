@@ -33,7 +33,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_quota.c 278150 2015-02-03 11:54:33Z kib $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_quota.c 278150 2015-02-03 11:54:33Z kib $");
 
 #include "opt_ffs.h"
 
@@ -54,11 +54,11 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_quota.c 278150 2015-02-03 11:54:
 #include <sys/sysctl.h>
 #include <sys/vnode.h>
 
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/ufs_extern.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/ufs_extern.h>
 
 CTASSERT(sizeof(struct dqblk64) == sizeof(struct dqhdr64));
 

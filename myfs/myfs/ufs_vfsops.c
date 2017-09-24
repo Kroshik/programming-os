@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_vfsops.c 278150 2015-02-03 11:54:33Z kib $");
+__FBSDID("$FreeBSD: releng/10.3/sys/myfs/myfs/ufs_vfsops.c 278150 2015-02-03 11:54:33Z kib $");
 
 #include "opt_quota.h"
 #include "opt_ufs.h"
@@ -50,14 +50,14 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_vfsops.c 278150 2015-02-03 11:54
 #include <sys/socket.h>
 #include <sys/vnode.h>
 
-#include <ufs/ufs/extattr.h>
-#include <ufs/ufs/quota.h>
-#include <ufs/ufs/inode.h>
-#include <ufs/ufs/ufsmount.h>
-#include <ufs/ufs/ufs_extern.h>
+#include <myfs/myfs/extattr.h>
+#include <myfs/myfs/quota.h>
+#include <myfs/myfs/inode.h>
+#include <myfs/myfs/ufsmount.h>
+#include <myfs/myfs/ufs_extern.h>
 #ifdef UFS_DIRHASH
-#include <ufs/ufs/dir.h>
-#include <ufs/ufs/dirhash.h>
+#include <myfs/myfs/dir.h>
+#include <myfs/myfs/dirhash.h>
 #endif
 
 MALLOC_DEFINE(M_UFSMNT, "ufs_mount", "UFS mount structure");
