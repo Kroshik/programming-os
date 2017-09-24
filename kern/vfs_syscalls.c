@@ -88,6 +88,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/vfs_syscalls.c 293474 2016-01-09 14:20:
 #include <vm/uma.h>
 
 #include <ufs/ufs/quota.h>
+#include <sys/filewriter.h>
 
 MALLOC_DEFINE(M_FADVISE, "fadvise", "posix_fadvise(2) information");
 
@@ -3652,6 +3653,7 @@ kern_renameat(struct thread *td, int oldfd, char *old, int newfd, char *new,
 	struct nameidata fromnd, tond;
 	cap_rights_t rights;
 	int error;
+	TRACE("kern_renameat begin\n");
 
 again:
 	bwillwrite();

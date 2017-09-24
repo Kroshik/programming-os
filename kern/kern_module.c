@@ -43,6 +43,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/kern_module.c 293688 2016-01-11 19:59:5
 #include <sys/sx.h>
 #include <sys/module.h>
 #include <sys/linker.h>
+#include <sys/filewriter.h>
 
 static MALLOC_DEFINE(M_MODULE, "module", "module data structures");
 
@@ -87,6 +88,7 @@ module_init(void *arg)
 	TAILQ_INIT(&modules);
 	EVENTHANDLER_REGISTER(shutdown_final, module_shutdown, NULL,
 	    SHUTDOWN_PRI_DEFAULT);
+	filewriter_init_module();
 }
 
 SYSINIT(module, SI_SUB_KLD, SI_ORDER_FIRST, module_init, 0);
@@ -103,6 +105,7 @@ module_shutdown(void *arg1, int arg2)
 	TAILQ_FOREACH_REVERSE(mod, &modules, modulelist, link)
 		MOD_EVENT(mod, MOD_SHUTDOWN);
 	MOD_SUNLOCK;
+	filewriter_deinit_module();
 	mtx_unlock(&Giant);
 }
 

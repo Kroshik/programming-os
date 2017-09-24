@@ -18,13 +18,9 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/kern_filewriter.c 264366 2014-04-12 06:
 #define PATH "/var/log/test23.log"
 
 // some ugly globals vars, we may look at getting rid of these.
+static int filewriter_log_fd = -1;
 static volatile int filewriter_hooked = 0;
-static int testfd = 0;
-
-void simple_test()
-{
-	printf("Hello, world");
-}
+static char filewriter_line[4096];
 
 static int
 filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
@@ -48,21 +44,30 @@ filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
 
   auio.uio_td = td;
 
-  printf("fd: %u\n", fd);
   err = kern_writev(td, fd, &auio);
-  printf("write err: %u\n", err);
 
   return err;
 }
 
+int filewriter_write(struct thread *td, char *line, u_int len)
+{
+	return filewriter_writelog(td, filewriter_log_fd, line, len);
+}
+
+int filewriter_trace(struct thread *td, int linen,
+					 char *file, char *line, u_int len)
+{
+	int res = 0;
+    sprintf(filewriter_line, "[%x] %i %s: %s \n", (unsigned int)td, linen, file, line);
+	res |= filewriter_write(td, line, len);
+	return res;
+}
 
 static int
 filewriter_closelog(struct thread *td, int fd)
 {
-  printf("filewriter_closelog fd: %d\n", fd);
   if(fd)
   {
-    printf("filewriter_closelog thread ptr: %x\n", (unsigned int)td);
     return kern_close(td, fd);
   }
   return 0;
@@ -76,48 +81,34 @@ filewriter_openlog(struct thread *td, int *fd, char *path)
   if (!error)
   {
     *fd = td->td_retval[0];
-    printf("openlog fd: %d\n", *fd);
   }
-  else
-    printf("openlog failed\n");
   return error;
 }
 
 // called when the module is first loaded into the kernel, hooking our functions into
 // the IP stack using pfil hooks. These hooks are designed for firewall processing,
 // but work equally well for our purposes - we just never tell the stack to drop a packet.
-static int
-init_module(void)
+int
+filewriter_init_module(void)
 {
-    char filewriter_line[128];
-
     // if we're alredy hooked in, do nothing
     if (filewriter_hooked)
         return (0);
 
     filewriter_hooked = 1;
 
-    filewriter_openlog(curthread, &testfd, PATH);
+    filewriter_openlog(curthread, &filewriter_log_fd, PATH);
 
-    sprintf(filewriter_line, "init_module()\tFile: %s\tcurthread ptr: %x\n", PATH, (unsigned int)curthread);
-
-    filewriter_writelog(curthread, testfd, filewriter_line, strlen(filewriter_line));
-
-    // print message to the user's current terminal as opposed to 
-    // printf which prints to the kernel's stdout (which is attached 
-    // to getty 0)
-    uprintf("Loaded %s %s\n", MODNAME, MODVERSION);
+	TRACE("init_module");
 
     return 0;
 }
 
 // called when the module is unloaded from the kernel, unhooking our functions from
 // the IP stacks. 
-static int
-deinit_module(void)
+int
+filewriter_deinit_module(void)
 {
-    char filewriter_line[128];
-
     // if we're already unhooked, do nothing
     if (!filewriter_hooked)
         return (0);
@@ -125,37 +116,9 @@ deinit_module(void)
     // let our module know we're no longer hooked in
     filewriter_hooked = 0;
 
-    sprintf(filewriter_line, "deinit_module()\tFile: %s\tcurthread ptr: %x\n\n", PATH, (unsigned int)curthread);
+	TRACE("deinit_module");
 
-    filewriter_writelog(curthread, testfd, filewriter_line, strlen(filewriter_line)); 
-
-    filewriter_closelog(curthread, testfd);
-
-    uprintf("Unloaded %s %s\n", MODNAME, MODVERSION);
+    filewriter_closelog(curthread, filewriter_log_fd);
 
     return 0;
-}
-
-// This is the function that is called to load and unload the functions. It hands off
-// to seperate functions to do the work.
-static int load_handler(module_t mod, int what, void *arg)
-{
-	int err = 0;
-
-	switch(what)
-	{
-		case MOD_LOAD:
-      err = init_module();
-			break;
-
-		case MOD_UNLOAD:
-      err = deinit_module();
-			break;
-
-		default:		
-			err = EINVAL;
-			break;
-	}
-
-	return(err);
 }
