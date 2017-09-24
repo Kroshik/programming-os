@@ -125,9 +125,14 @@ vtoc8_parse_type(const char *type, uint16_t *tag)
 		*tag = VTOC_TAG_FREEBSD_SWAP;
 		return (0);
 	}
-	alias = g_part_alias_name(G_PART_ALIAS_FREEBSD_UFS);
+	alias = g_part_alias_name(g_part_alias_freebsd_ufs);
 	if (!strcasecmp(type, alias)) {
-		*tag = VTOC_TAG_FREEBSD_UFS;
+		*tag = vtoc_tag_freebsd_ufs;
+		return (0);
+	}
+	alias = g_part_alias_name(g_part_alias_freebsd_myfs);
+	if (!strcasecmp(type, alias)) {
+		*tag = vtoc_tag_freebsd_myfs;
 		return (0);
 	}
 	alias = g_part_alias_name(G_PART_ALIAS_FREEBSD_VINUM);
@@ -552,6 +557,8 @@ g_part_vtoc8_type(struct g_part_table *basetable, struct g_part_entry *entry,
 		return (g_part_alias_name(G_PART_ALIAS_FREEBSD_SWAP));
 	if (tag == VTOC_TAG_FREEBSD_UFS)
 		return (g_part_alias_name(G_PART_ALIAS_FREEBSD_UFS));
+	if (tag == VTOC_TAG_FREEBSD_MYFS)
+		return (g_part_alias_name(G_PART_ALIAS_FREEBSD_MYFS));
 	if (tag == VTOC_TAG_FREEBSD_VINUM)
 		return (g_part_alias_name(G_PART_ALIAS_FREEBSD_VINUM));
 	if (tag == VTOC_TAG_FREEBSD_ZFS)

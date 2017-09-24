@@ -179,6 +179,7 @@ static struct uuid bsd64_uuid_freebsd_boot = GPT_ENT_TYPE_FREEBSD_BOOT;
 static struct uuid bsd64_uuid_freebsd_nandfs = GPT_ENT_TYPE_FREEBSD_NANDFS;
 static struct uuid bsd64_uuid_freebsd_swap = GPT_ENT_TYPE_FREEBSD_SWAP;
 static struct uuid bsd64_uuid_freebsd_ufs = GPT_ENT_TYPE_FREEBSD_UFS;
+static struct uuid bsd64_uuid_freebsd_myfs = GPT_ENT_TYPE_FREEBSD_MYFS;
 static struct uuid bsd64_uuid_freebsd_vinum = GPT_ENT_TYPE_FREEBSD_VINUM;
 static struct uuid bsd64_uuid_freebsd_zfs = GPT_ENT_TYPE_FREEBSD_ZFS;
 
@@ -201,6 +202,7 @@ static struct bsd64_uuid_alias fbsd_alias_match[] = {
 	{ &bsd64_uuid_freebsd_boot, FS_OTHER, G_PART_ALIAS_FREEBSD_BOOT },
 	{ &bsd64_uuid_freebsd_swap, FS_OTHER, G_PART_ALIAS_FREEBSD_SWAP },
 	{ &bsd64_uuid_freebsd_ufs, FS_OTHER, G_PART_ALIAS_FREEBSD_UFS },
+	{ &bsd64_uuid_freebsd_myfs, FS_OTHER, G_PART_ALIAS_FREEBSD_MYFS },
 	{ &bsd64_uuid_freebsd_zfs, FS_OTHER, G_PART_ALIAS_FREEBSD_ZFS },
 	{ &bsd64_uuid_freebsd_vinum, FS_OTHER, G_PART_ALIAS_FREEBSD_VINUM },
 	{ &bsd64_uuid_freebsd_nandfs, FS_OTHER, G_PART_ALIAS_FREEBSD_NANDFS },

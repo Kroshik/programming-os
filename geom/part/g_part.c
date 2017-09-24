@@ -87,6 +87,7 @@ struct g_part_alias_list {
 	{ "freebsd-nandfs", G_PART_ALIAS_FREEBSD_NANDFS },
 	{ "freebsd-swap", G_PART_ALIAS_FREEBSD_SWAP },
 	{ "freebsd-ufs", G_PART_ALIAS_FREEBSD_UFS },
+	{ "freebsd-myfs", G_PART_ALIAS_FREEBSD_MYFS },
 	{ "freebsd-vinum", G_PART_ALIAS_FREEBSD_VINUM },
 	{ "freebsd-zfs", G_PART_ALIAS_FREEBSD_ZFS },
 	{ "linux-data", G_PART_ALIAS_LINUX_DATA },
