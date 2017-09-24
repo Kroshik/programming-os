@@ -270,6 +270,7 @@ ufs_open(struct vop_open_args *ap)
 {
 	struct vnode *vp = ap->a_vp;
 	struct inode *ip;
+	struct ucred *cred = ap->a_cred;
 
 	if (vp->v_type == VCHR || vp->v_type == VBLK)
 		return (EOPNOTSUPP);
