@@ -59,8 +59,6 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_lookup.c 276500 2015-01-01 10:44
 #include <ufs/ufs/quota.h>
 #include <ufs/ufs/inode.h>
 #include <ufs/ufs/dir.h>
-#undef UFS_DIRHASH
-
 #ifdef UFS_DIRHASH
 #include <ufs/ufs/dirhash.h>
 #endif
@@ -251,7 +249,7 @@ ufs_lookup_ino(struct vnode *vdp, struct vnode **vpp, struct componentname *cnp,
 		cnp->cn_flags |= ISUFS;
 		return (EJUSTRETURN);
 	}
-	TRACE("begin after %s", cnp->cn_pnbuf);
+	cnp->cn_flags &= ~ISUFS;
 	flags |= ISLASTCN;
 
 	if (vpp != NULL)
@@ -367,10 +365,7 @@ restart:
 		i_offset = i_diroff;
 		if ((entryoffsetinblock = i_offset & bmask) &&
 		    (error = UFS_BLKATOFF(vdp, (off_t)i_offset, NULL, &bp)))
-		{
-			TRACE("UFS_BLKATOFF");
 			return (error);
-		}
 		numdirpasses = 2;
 		nchstats.ncs_2passes++;
 	}
@@ -390,10 +385,7 @@ searchloop:
 			error =
 			    UFS_BLKATOFF(vdp, (off_t)i_offset, NULL, &bp);
 			if (error)
-			{
-				TRACE("UFS_BLKATOFF searchloop");
 				return (error);
-			}
 			entryoffsetinblock = 0;
 		}
 		/*
@@ -466,8 +458,7 @@ searchloop:
 #			else
 				namlen = ep->d_namlen;
 #			endif
-			if (!(cnp->cn_flags & SECOND_RENAME_ARGUMENT)
-				&& namlen == cnp->cn_namelen &&
+			if (namlen == cnp->cn_namelen &&
 				(cnp->cn_nameptr[0] == ep->d_name[0]) &&
 			    !bcmp(cnp->cn_nameptr, ep->d_name,
 				(unsigned)namlen)) {

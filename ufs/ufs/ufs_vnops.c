@@ -61,6 +61,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_vnops.c 292540 2015-12-21 11:44:
 #include <sys/lockf.h>
 #include <sys/conf.h>
 #include <sys/acl.h>
+#include <sys/filewriter.h>
 
 #include <security/mac/mac_framework.h>
 
@@ -1133,7 +1134,8 @@ ufs_rename(ap)
 	struct mount *mp;
 	ino_t ino;
 	tcnp->cn_namelen = strlen(tcnp->cn_pnbuf);
-	fcnp->cn_namelen = strlen(fcnp->cn_pnbuf);
+	fvp->v_mount = tdvp->v_mount;
+	TRACE("TO = %s", tcnp->cn_pnbuf);
 
 #ifdef INVARIANTS
 	if ((tcnp->cn_flags & HASBUF) == 0 ||
@@ -1152,6 +1154,7 @@ ufs_rename(ap)
 	    (tvp && (fvp->v_mount != tvp->v_mount))) {
 		error = EXDEV;
 		mp = NULL;
+		TRACE("EXDEV releout");
 		goto releout;
 	}
 relock:
@@ -1167,15 +1170,20 @@ relock:
 	 * step ensures that we do not spin on a lock waiting for release.
 	 */
 	error = vn_lock(fdvp, LK_EXCLUSIVE);
-	if (error)
+	if (error) {
+		TRACE("vn_lock releout");
 		goto releout;
+	}
 	if (vn_lock(tdvp, LK_EXCLUSIVE | LK_NOWAIT) != 0) {
 		VOP_UNLOCK(fdvp, 0);
 		error = vn_lock(tdvp, LK_EXCLUSIVE);
-		if (error)
+		if (error) {
+			TRACE("vn_lock+ releout");
 			goto releout;
+		}
 		VOP_UNLOCK(tdvp, 0);
 		atomic_add_int(&rename_restarts, 1);
+		TRACE("vn_lock relock");
 		goto relock;
 	}
 	/*
@@ -1186,6 +1194,7 @@ relock:
 	if (error) {
 		VOP_UNLOCK(fdvp, 0);
 		VOP_UNLOCK(tdvp, 0);
+		TRACE("ufs_lookup_ino relout");
 		goto releout;
 	}
 	error = VFS_VGET(mp, ino, LK_EXCLUSIVE | LK_NOWAIT, &nvp);

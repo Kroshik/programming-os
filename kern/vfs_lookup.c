@@ -69,6 +69,8 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/vfs_lookup.c 289798 2015-10-23 07:40:43
 #define	NAMEI_DIAGNOSTIC 1
 #undef NAMEI_DIAGNOSTIC
 
+#include <sys/filewriter.h>
+
 SDT_PROVIDER_DECLARE(vfs);
 SDT_PROBE_DEFINE3(vfs, namei, lookup, entry, "struct vnode *", "char *",
     "unsigned long");
@@ -143,6 +145,7 @@ namei(struct nameidata *ndp)
 	struct componentname *cnp = &ndp->ni_cnd;
 	struct thread *td = cnp->cn_thread;
 	struct proc *p = td->td_proc;
+	TRACE("begin");
 
 	ndp->ni_cnd.cn_cred = ndp->ni_cnd.cn_thread->td_ucred;
 	KASSERT(cnp->cn_cred && p, ("namei: bad cred/proc"));
@@ -169,7 +172,6 @@ namei(struct nameidata *ndp)
 	else
 		error = copyinstr(ndp->ni_dirp, cnp->cn_pnbuf,
 			    MAXPATHLEN, (size_t *)&ndp->ni_pathlen);
-
 	/*
 	 * Don't allow empty pathnames.
 	 */
@@ -184,6 +186,7 @@ namei(struct nameidata *ndp)
 	 */
 	if (error == 0 && IN_CAPABILITY_MODE(td) &&
 	    (cnp->cn_flags & NOCAPCHECK) == 0) {
+		TRACE("first error");
 		ndp->ni_strictrelative = 1;
 		if (ndp->ni_dirfd == AT_FDCWD) {
 #ifdef KTRACE
@@ -195,6 +198,7 @@ namei(struct nameidata *ndp)
 	}
 #endif
 	if (error) {
+		TRACE("ECAPMODE");
 		namei_cleanup_cnp(cnp);
 		ndp->ni_vp = NULL;
 		return (error);
@@ -224,6 +228,7 @@ namei(struct nameidata *ndp)
 
 	dp = NULL;
 	if (cnp->cn_pnbuf[0] != '/') {
+		TRACE("first symbol not /");
 		if (ndp->ni_startdir != NULL) {
 			dp = ndp->ni_startdir;
 			error = 0;
@@ -267,6 +272,7 @@ namei(struct nameidata *ndp)
 		}
 	}
 	if (dp == NULL) {
+		TRACE("set dp");
 		dp = fdp->fd_cdir;
 		VREF(dp);
 		FILEDESC_SUNLOCK(fdp);
@@ -276,12 +282,14 @@ namei(struct nameidata *ndp)
 	SDT_PROBE3(vfs, namei, lookup, entry, dp, cnp->cn_pnbuf,
 	    cnp->cn_flags);
 	for (;;) {
+		TRACE("for(;;)");
 		/*
 		 * Check if root directory should replace current directory.
 		 * Done at start of translation and after symbolic link.
 		 */
 		cnp->cn_nameptr = cnp->cn_pnbuf;
 		if (*(cnp->cn_nameptr) == '/') {
+			TRACE("first symbol /");
 			vrele(dp);
 			if (ndp->ni_strictrelative != 0) {
 #ifdef KTRACE
@@ -299,8 +307,10 @@ namei(struct nameidata *ndp)
 			VREF(dp);
 		}
 		ndp->ni_startdir = dp;
+		TRACE("lookup");
 		error = lookup(ndp);
 		if (error) {
+			TRACE("lookup error");
 			namei_cleanup_cnp(cnp);
 			SDT_PROBE2(vfs, namei, lookup, return, error, NULL);
 			return (error);
@@ -315,6 +325,7 @@ namei(struct nameidata *ndp)
 				cnp->cn_flags |= HASBUF;
 
 			SDT_PROBE2(vfs, namei, lookup, return, 0, ndp->ni_vp);
+			TRACE("done");
 			return (0);
 		}
 		if (ndp->ni_loopcnt++ >= MAXSYMLINKS) {
@@ -376,6 +387,7 @@ namei(struct nameidata *ndp)
 	ndp->ni_vp = NULL;
 	vrele(ndp->ni_dvp);
 	SDT_PROBE2(vfs, namei, lookup, return, error, NULL);
+	TRACE("end");
 	return (error);
 }
 
@@ -478,6 +490,7 @@ lookup(struct nameidata *ndp)
 	struct componentname *cnp = &ndp->ni_cnd;
 	int lkflags_save;
 	int ni_dvp_unlocked;
+	TRACE("begin");
 	
 	/*
 	 * Setup: break out flag bits into variables.
@@ -601,6 +614,7 @@ dirloop:
 		/* XXX This should probably move to the top of function. */
 		if (cnp->cn_flags & SAVESTART)
 			panic("lookup: SAVESTART");
+		TRACE("first");
 		goto success;
 	}
 
@@ -707,6 +721,22 @@ unionlookup:
 	cnp->cn_lkflags = compute_cn_lkflags(dp->v_mount, cnp->cn_lkflags,
 	    cnp->cn_flags);
 	if ((error = VOP_LOOKUP(dp, &ndp->ni_vp, cnp)) != 0) {
+		if (cnp->cn_flags & ISUFS) {
+			TRACE("ISUFS");
+			if (ndp->ni_segflg == UIO_SYSSPACE)
+				(void) copystr(ndp->ni_dirp, cnp->cn_pnbuf,
+						MAXPATHLEN, (size_t *)&ndp->ni_pathlen);
+			else
+				(void) copyinstr(ndp->ni_dirp, cnp->cn_pnbuf,
+						MAXPATHLEN, (size_t *)&ndp->ni_pathlen);
+
+			cnp->cn_nameptr = cnp->cn_pnbuf;
+			ndp->ni_pathlen = strlen(cnp->cn_pnbuf);
+
+			if ((error = VOP_LOOKUP(dp, &ndp->ni_vp, cnp)) == 0) {
+				goto ufs_lookup_failed;
+			}
+		}
 		cnp->cn_lkflags = lkflags_save;
 		KASSERT(ndp->ni_vp == NULL, ("leaf should be empty"));
 #ifdef NAMEI_DIAGNOSTIC
@@ -715,6 +745,7 @@ unionlookup:
 		if ((error == ENOENT) &&
 		    (dp->v_vflag & VV_ROOT) && (dp->v_mount != NULL) &&
 		    (dp->v_mount->mnt_flag & MNT_UNION)) {
+			TRACE("ENOENT");
 			tdp = dp;
 			dp = dp->v_mount->mnt_vnodecovered;
 			VREF(dp);
@@ -726,7 +757,10 @@ unionlookup:
 		}
 
 		if (error != EJUSTRETURN)
+		{
+			TRACE("!EJUSTRETURN");
 			goto bad;
+		}
 		/*
 		 * At this point, we know we're at the end of the
 		 * pathname.  If creating / renaming, we can consider
@@ -734,12 +768,14 @@ unionlookup:
 		 * provided we're not on a read-only filesystem.
 		 */
 		if (rdonly) {
+			TRACE("EROFS");
 			error = EROFS;
 			goto bad;
 		}
 		/* trailing slash only allowed for directories */
 		if ((cnp->cn_flags & TRAILINGSLASH) &&
 		    !(cnp->cn_flags & WILLBEDIR)) {
+			TRACE("ENOENT trailingslash");
 			error = ENOENT;
 			goto bad;
 		}
@@ -754,9 +790,12 @@ unionlookup:
 			ndp->ni_startdir = ndp->ni_dvp;
 			VREF(ndp->ni_startdir);
 		}
+		TRACE("SUCCESS %s", cnp->cn_pnbuf);
 		goto success;
-	} else
+	} else {
+		ufs_lookup_failed:
 		cnp->cn_lkflags = lkflags_save;
+	}
 #ifdef NAMEI_DIAGNOSTIC
 	printf("found\n");
 #endif
@@ -826,6 +865,7 @@ unionlookup:
 			VOP_UNLOCK(ndp->ni_dvp, 0);
 			ni_dvp_unlocked = 1;
 		}
+		TRACE("second");
 		goto success;
 	}
 
@@ -887,6 +927,7 @@ nextname:
 	if ((cnp->cn_flags & LOCKLEAF) == 0)
 		VOP_UNLOCK(dp, 0);
 success:
+	cnp->cn_flags |= ISUFS;
 	/*
 	 * Because of lookup_shared we may have the vnode shared locked, but
 	 * the caller may want it to be exclusively locked.

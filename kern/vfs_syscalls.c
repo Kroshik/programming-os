@@ -3653,7 +3653,6 @@ kern_renameat(struct thread *td, int oldfd, char *old, int newfd, char *new,
 	struct nameidata fromnd, tond;
 	cap_rights_t rights;
 	int error;
-	TRACE("kern_renameat begin");
 
 again:
 	bwillwrite();
@@ -3665,9 +3664,12 @@ again:
 	NDINIT_ATRIGHTS(&fromnd, DELETE, WANTPARENT | SAVESTART | AUDITVNODE1,
 	    pathseg, old, oldfd, cap_rights_init(&rights, CAP_RENAMEAT), td);
 #endif
-
+	TRACE("from -> %s", fromnd.ni_dirp);
 	if ((error = namei(&fromnd)) != 0)
+	{
+		TRACE("namei fromnd error");
 		return (error);
+	}
 #ifdef MAC
 	error = mac_vnode_check_rename_from(td->td_ucred, fromnd.ni_dvp,
 	    fromnd.ni_vp, &fromnd.ni_cnd);
@@ -3679,8 +3681,10 @@ again:
 	NDINIT_ATRIGHTS(&tond, RENAME, LOCKPARENT | LOCKLEAF | NOCACHE |
 	    SAVESTART | AUDITVNODE2, pathseg, new, newfd,
 	    cap_rights_init(&rights, CAP_LINKAT), td);
+	TRACE("to -> %s", tond.ni_dirp);
 	if (fromnd.ni_vp->v_type == VDIR)
 		tond.ni_cnd.cn_flags |= WILLBEDIR;
+	tond.ni_cnd.cn_flags |= SECOND_RENAME_ARGUMENT;
 	if ((error = namei(&tond)) != 0) {
 		/* Translate error code for rename("dir1", "dir2/."). */
 		if (error == EISDIR && fvp->v_type == VDIR)
@@ -3688,12 +3692,14 @@ again:
 		NDFREE(&fromnd, NDF_ONLY_PNBUF);
 		vrele(fromnd.ni_dvp);
 		vrele(fvp);
+		TRACE("namei tond error goto out1");
 		goto out1;
 	}
 	tdvp = tond.ni_dvp;
 	tvp = tond.ni_vp;
 	error = vn_start_write(fvp, &mp, V_NOWAIT);
 	if (error != 0) {
+		TRACE("vn_start_write error");
 		NDFREE(&fromnd, NDF_ONLY_PNBUF);
 		NDFREE(&tond, NDF_ONLY_PNBUF);
 		if (tvp != NULL)
@@ -3709,14 +3715,20 @@ again:
 			vrele(fromnd.ni_startdir);
 		error = vn_start_write(NULL, &mp, V_XSLEEP | PCATCH);
 		if (error != 0)
+		{
+			TRACE("vn_start_write error return");
 			return (error);
+		}
+		TRACE("vn_start_write goto again");
 		goto again;
 	}
 	if (tvp != NULL) {
 		if (fvp->v_type == VDIR && tvp->v_type != VDIR) {
 			error = ENOTDIR;
+			TRACE("ENOTDIR");
 			goto out;
 		} else if (fvp->v_type != VDIR && tvp->v_type == VDIR) {
+			TRACE("EISDIR");
 			error = EISDIR;
 			goto out;
 		}
@@ -3729,11 +3741,15 @@ again:
 			error = cap_check(&tond.ni_filecaps.fc_rights,
 			    cap_rights_init(&rights, CAP_UNLINKAT));
 			if (error != 0)
+			{
+				TRACE("check target exists");
 				goto out;
+			}
 		}
 #endif
 	}
 	if (fvp == tdvp) {
+		TRACE("fvp != tdvp");
 		error = EINVAL;
 		goto out;
 	}
@@ -3742,19 +3758,27 @@ again:
 	 * are links to the same vnode), then there is nothing to do.
 	 */
 	if (fvp == tvp)
+	{
+		TRACE("fvp != tvp");
 		error = -1;
+	}
 #ifdef MAC
 	else
+	{
+		TRACE("mac vnode check rename");
 		error = mac_vnode_check_rename_to(td->td_ucred, tdvp,
 		    tond.ni_vp, fromnd.ni_dvp == tdvp, &tond.ni_cnd);
+	}
 #endif
 out:
 	if (error == 0) {
+		TRACE("VOP_RENAME");
 		error = VOP_RENAME(fromnd.ni_dvp, fromnd.ni_vp, &fromnd.ni_cnd,
 		    tond.ni_dvp, tond.ni_vp, &tond.ni_cnd);
 		NDFREE(&fromnd, NDF_ONLY_PNBUF);
 		NDFREE(&tond, NDF_ONLY_PNBUF);
 	} else {
+		TRACE("NOVOP");
 		NDFREE(&fromnd, NDF_ONLY_PNBUF);
 		NDFREE(&tond, NDF_ONLY_PNBUF);
 		if (tvp != NULL)
@@ -3769,6 +3793,7 @@ out:
 	vrele(tond.ni_startdir);
 	vn_finished_write(mp);
 out1:
+	TRACE("out1");
 	if (fromnd.ni_startdir)
 		vrele(fromnd.ni_startdir);
 	if (error == -1)

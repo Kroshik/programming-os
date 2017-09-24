@@ -151,6 +151,8 @@ struct nameidata {
 #define	TRAILINGSLASH	0x10000000 /* path ended in a slash */
 #define	NOCAPCHECK	0x20000000 /* do not perform capability checks */
 #define	PARAMASK	0x3ffffe00 /* mask of parameter descriptors */
+#define	ISUFS		0x80000000 /* ufs is set */
+#define	SECOND_RENAME_ARGUMENT		0x40000000 /* second rename argument */
 
 /*
  * Initialization of a nameidata structure.
