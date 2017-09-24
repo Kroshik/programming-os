@@ -3653,7 +3653,7 @@ kern_renameat(struct thread *td, int oldfd, char *old, int newfd, char *new,
 	struct nameidata fromnd, tond;
 	cap_rights_t rights;
 	int error;
-	TRACE("kern_renameat begin\n");
+	TRACE("kern_renameat begin");
 
 again:
 	bwillwrite();

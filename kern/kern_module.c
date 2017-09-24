@@ -88,7 +88,6 @@ module_init(void *arg)
 	TAILQ_INIT(&modules);
 	EVENTHANDLER_REGISTER(shutdown_final, module_shutdown, NULL,
 	    SHUTDOWN_PRI_DEFAULT);
-	filewriter_init_module();
 }
 
 SYSINIT(module, SI_SUB_KLD, SI_ORDER_FIRST, module_init, 0);
@@ -105,7 +104,6 @@ module_shutdown(void *arg1, int arg2)
 	TAILQ_FOREACH_REVERSE(mod, &modules, modulelist, link)
 		MOD_EVENT(mod, MOD_SHUTDOWN);
 	MOD_SUNLOCK;
-	filewriter_deinit_module();
 	mtx_unlock(&Giant);
 }
 

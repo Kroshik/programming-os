@@ -1,14 +1,7 @@
 #pragma once
 
-int filewriter_init_module(void);
-
-int filewriter_deinit_module(void);
-
-int filewriter_write(struct thread *td, char *line, u_int len);
-
-int filewriter_trace(struct thread *td, int linen,
-					 char *file, char *line, u_int len);
+#include <sys/systm.h>
 
 #define TRACE(text) { \
-	filewriter_trace(curthread, __LINE__, __FILE__, text, strlen(text)); \
+	log(7, "[%x] %i %s: %s \n", (unsigned int)curthread, __LINE__, __FILE__, text); \
 } while(0)
