@@ -276,9 +276,6 @@ ufs_open(struct vop_open_args *ap)
 		return (EOPNOTSUPP);
 
 	ip = VTOI(vp);
-	if ((ip->i_mode & ISVTX) && (ap->a_mode & FWRITE)
-		&& (ip->i_uid == cred->cr_uid))
-		return (EPERM);
 	
 	/*
 	 * Files marked append-only must be opened for appending.
@@ -493,8 +490,8 @@ ufs_getattr(ap)
 		vap->va_size = ip->i_din2->di_size;
 		vap->va_mtime.tv_sec = ip->i_din2->di_mtime;
 		vap->va_mtime.tv_nsec = ip->i_din2->di_mtimensec;
-		vap->va_ctime.tv_sec = ip->i_din2->di_birthtime;
-		vap->va_ctime.tv_nsec = ip->i_din2->di_birthnsec;
+		vap->va_ctime.tv_sec = ip->i_din2->di_ctime;
+		vap->va_ctime.tv_nsec = ip->i_din2->di_ctimensec;
 		vap->va_birthtime.tv_sec = ip->i_din2->di_birthtime;
 		vap->va_birthtime.tv_nsec = ip->i_din2->di_birthnsec;
 		vap->va_bytes = dbtob((u_quad_t)ip->i_din2->di_blocks);
@@ -524,14 +521,6 @@ ufs_setattr(ap)
 	struct ucred *cred = ap->a_cred;
 	struct thread *td = curthread;
 	int error;
-
-	if (vap->va_flags != VNOVAL) {
-		if ((vp->v_mount->mnt_flag & MNT_ACLS) &&
-			(((ip->i_flags ^ vap->va_flags) & SF_IMMUTABLE) ||
-			((ip->i_flags ^ vap->va_flags) & UF_IMMUTABLE))) {
-			return (EPERM);
-		}
-	}
 
 	/*
 	 * Check for unsettable attributes.
