@@ -125,6 +125,7 @@ vtoc8_parse_type(const char *type, uint16_t *tag)
 		*tag = VTOC_TAG_FREEBSD_SWAP;
 		return (0);
 	}
+	/*
 	alias = g_part_alias_name(g_part_alias_freebsd_ufs);
 	if (!strcasecmp(type, alias)) {
 		*tag = vtoc_tag_freebsd_ufs;
@@ -135,6 +136,7 @@ vtoc8_parse_type(const char *type, uint16_t *tag)
 		*tag = vtoc_tag_freebsd_myfs;
 		return (0);
 	}
+	*/
 	alias = g_part_alias_name(G_PART_ALIAS_FREEBSD_VINUM);
 	if (!strcasecmp(type, alias)) {
 		*tag = VTOC_TAG_FREEBSD_VINUM;
@@ -143,6 +145,16 @@ vtoc8_parse_type(const char *type, uint16_t *tag)
 	alias = g_part_alias_name(G_PART_ALIAS_FREEBSD_ZFS);
 	if (!strcasecmp(type, alias)) {
 		*tag = VTOC_TAG_FREEBSD_ZFS;
+		return (0);
+	}
+	alias = g_part_alias_name(G_PART_ALIAS_FREEBSD_UFS);
+	if (!strcasecmp(type, alias)) {
+		*tag = VTOC_TAG_FREEBSD_UFS;
+		return (0);
+	}
+	alias = g_part_alias_name(G_PART_ALIAS_FREEBSD_MYFS);
+	if (!strcasecmp(type, alias)) {
+		*tag = VTOC_TAG_FREEBSD_MYFS;
 		return (0);
 	}
 	return (EINVAL);

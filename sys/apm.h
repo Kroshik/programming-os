@@ -59,6 +59,7 @@ struct apm_ent {
 #define	APM_ENT_TYPE_FREEBSD_NANDFS	"FreeBSD-nandfs"
 #define	APM_ENT_TYPE_FREEBSD_SWAP	"FreeBSD-swap"
 #define	APM_ENT_TYPE_FREEBSD_UFS	"FreeBSD-UFS"
+#define	APM_ENT_TYPE_FREEBSD_MYFS	"FreeBSD-MYFS"
 #define	APM_ENT_TYPE_FREEBSD_VINUM	"FreeBSD-Vinum"
 #define	APM_ENT_TYPE_FREEBSD_ZFS	"FreeBSD-ZFS"
 

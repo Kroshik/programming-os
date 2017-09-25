@@ -41,6 +41,11 @@
 #define VMSTOR_PROTOCOL_VERSION(MAJOR_, MINOR_) ((((MAJOR_) & 0xff) << 8) | \
                                                  (((MINOR_) & 0xff)     ))
 
+#define VMSTOR_PROTOCOL_VERSION_WIN6       VMSTOR_PROTOCOL_VERSION(2, 0)
+#define VMSTOR_PROTOCOL_VERSION_WIN7       VMSTOR_PROTOCOL_VERSION(4, 2)
+#define VMSTOR_PROTOCOL_VERSION_WIN8       VMSTOR_PROTOCOL_VERSION(5, 1)
+#define VMSTOR_PROTOCOL_VERSION_WIN8_1     VMSTOR_PROTOCOL_VERSION(6, 0)
+#define VMSTOR_PROTOCOL_VERSION_WIN10      VMSTOR_PROTOCOL_VERSION(6, 2)
 /*
  * Invalid version.
  */
@@ -244,9 +249,9 @@ struct vstor_packet {
 /**
  * SRB Status Masks (can be combined with above status codes)
  */
-#define SRB_STATUS_QUEUE_FROZEN		0x40
-#define SRB_STATUS_AUTOSENSE_VALID	0x80
-
+#define SRB_STATUS_QUEUE_FROZEN         0x40
+#define SRB_STATUS_AUTOSENSE_VALID      0x80
+#define SRB_STATUS_INVALID_LUN          0X20
 
 /**
  *  Packet flags

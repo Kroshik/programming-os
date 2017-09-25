@@ -121,12 +121,16 @@ first reads the partition table.
 All
 .Cm freebsd-ufs
 partitions with only the
+.Cm freebsd-myfs
+partitions with only the
 .Cm bootonce
 attribute set, indicating a failed boot, are set to
 .Cm bootfailed .
 .Nm
 then scans through all of the
 .Cm freebsd-ufs
+partitions.
+.Cm freebsd-myfs
 partitions.
 Boot behavior depends on the combination of
 .Cm bootme
@@ -137,6 +141,8 @@ attributes set on those partitions.
 .It Cm bootonce + Cm bootme
 Highest priority: booting is attempted from each of the
 .Cm freebsd-ufs
+partitions with both of these attributes.
+.Cm freebsd-myfs
 partitions with both of these attributes.
 On each partition, the
 .Cm bootme
@@ -157,11 +163,15 @@ attributes are found on any partitions, booting is attempted from the
 first
 .Cm freebsd-ufs
 partition on the disk.
+.Cm freebsd-myfs
+partition on the disk.
 .Sh POST-BOOT ACTIONS
 The startup script
 .Pa /etc/rc.d/gptboot
 checks the attributes of
 .Cm freebsd-ufs
+partitions on all GPT disks.
+.Cm freebsd-myfs
 partitions on all GPT disks.
 Partitions with the
 .Cm bootfailed
