@@ -52,6 +52,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/boot/common/part.c 294981 2016-01-28 12:11:4
 static const uuid_t gpt_uuid_unused = GPT_ENT_TYPE_UNUSED;
 static const uuid_t gpt_uuid_ms_basic_data = GPT_ENT_TYPE_MS_BASIC_DATA;
 static const uuid_t gpt_uuid_freebsd_ufs = GPT_ENT_TYPE_FREEBSD_UFS;
+static const uuid_t gpt_uuid_freebsd_myfs = GPT_ENT_TYPE_FREEBSD_MYFS;
 static const uuid_t gpt_uuid_efi = GPT_ENT_TYPE_EFI;
 static const uuid_t gpt_uuid_freebsd = GPT_ENT_TYPE_FREEBSD;
 static const uuid_t gpt_uuid_freebsd_boot = GPT_ENT_TYPE_FREEBSD_BOOT;
