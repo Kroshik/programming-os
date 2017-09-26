@@ -183,7 +183,7 @@ procfs_doproccmdline(PFS_FILL_ARGS)
 	if (p->p_args && p_cansee(td, p) == 0) {
 		sbuf_bcpy(sb, p->p_args->ar_args, p->p_args->ar_length);
 		PROC_UNLOCK(p);
-		return (rc);
+		return (0);
 	}
 
 	if ((p->p_flag & P_SYSTEM) != 0) {
