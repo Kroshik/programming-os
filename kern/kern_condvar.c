@@ -68,15 +68,50 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/kern_condvar.c 294755 2016-01-26 00:22:
 	KASSERT((lock) != NULL, ("%s: lock NULL", __func__));		\
 } while (0)
 
+#include <sys/malloc.h>
+
+
+struct vector {
+	struct cv **cvp;
+	size_t size;
+	size_t capacity;
+};
+
+struct vector condvars;
+
+#define PUSH_BACK(element) { \
+	if (condvars.size == 0) { \
+		condvars.cvp = (struct cv**)malloc(16 * sizeof(struct cv**), M_TEMP, M_WAITOK | M_ZERO); \
+		condvars.size = 0; \
+		condvars.capacity = 16; \
+	} \
+	if (condvars.size == condvars.capacity) { \
+		condvars.cvp = (struct cv**)realloc(condvars.cvp, condvars.capacity * 2 * sizeof(struct cv**), M_TEMP, M_WAITOK | M_ZERO); \
+		condvars.capacity *= 2; \
+	} \
+	condvars.cvp[condvars.size++] = element; \
+} while(0)
+
+#define ERASE(element) { \
+	size_t j = 0; \
+	for (size_t i = 0; i < condvars.size; i++) { \
+		if (condvars.cvp[i] != element) { \
+			condvars.cvp[j++] = condvars.cvp[i]; \
+		} \
+	} \
+	condvars.size = j; \
+}
+
+
 /*
  * Initialize a condition variable.  Must be called before use.
  */
 void
 cv_init(struct cv *cvp, const char *desc)
 {
-
 	cvp->cv_description = desc;
 	cvp->cv_waiters = 0;
+	PUSH_BACK(cvp);
 }
 
 /*
@@ -94,6 +129,7 @@ cv_destroy(struct cv *cvp)
 	sleepq_release(cvp);
 	KASSERT(sq == NULL, ("%s: associated sleep queue non-empty", __func__));
 #endif
+	ERASE(cvp);
 }
 
 /*
