@@ -46,6 +46,7 @@ TAILQ_HEAD(cv_waitq, thread);
 struct cv {
 	const char	*cv_description;
 	int		cv_waiters;
+	struct cv *next;
 };
 
 #ifdef _KERNEL

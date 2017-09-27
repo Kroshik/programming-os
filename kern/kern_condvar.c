@@ -42,6 +42,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/kern_condvar.c 294755 2016-01-26 00:22:
 #include <sys/signalvar.h>
 #include <sys/sleepqueue.h>
 #include <sys/resourcevar.h>
+#include <sys/filewriter.h>
 #ifdef KTRACE
 #include <sys/uio.h>
 #include <sys/ktrace.h>
@@ -70,49 +71,52 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/kern_condvar.c 294755 2016-01-26 00:22:
 
 #include <sys/malloc.h>
 
+static struct cv cond_head = { 0 };
 
-struct vector {
-	struct cv **cvp;
-	size_t size;
-	size_t capacity;
-};
+static char
+cond_find(struct cv *cond_head, struct cv *entry)
+{
+	struct cv *iter = cond_head;
+	while (iter->next != NULL) {
+		if (iter->next == entry) {
+			return (1);
+		}
+		iter = iter->next;
+	}
+	return (0);
+}
 
-struct vector condvars;
-struct cv *array[1024 * sizeof(struct cv*)];
-
-#define PUSH_BACK(element) { \
-	if (condvars.size == 0) { \
-		condvars.cvp = (struct cv**)array; \
-		condvars.size = 0; \
-		condvars.capacity = 1024; \
-	} \
-	if (condvars.size == condvars.capacity) { \
-		condvars.cvp = (struct cv**)realloc(condvars.cvp, condvars.capacity * 2 * sizeof(struct cv*), M_TEMP, M_WAITOK | M_ZERO); \
-		condvars.capacity *= 2; \
-	} \
-	condvars.cvp[condvars.size++] = element; \
-} while(0)
-
-#define ERASE(element) { \
-	size_t j = 0; \
-	for (size_t i = 0; i < condvars.size; i++) { \
-		if (condvars.cvp[i] != element) { \
-			condvars.cvp[j++] = condvars.cvp[i]; \
-		} \
-	} \
-	condvars.size = j; \
+static void
+cond_insert_head(struct cv *cond_head, struct cv *entry)
+{
+//	if (!cond_find(cond_head, entry)) {
+		entry->next = cond_head->next;
+		cond_head->next = entry;
+//	}
 }
 
 
+static void 
+cond_erase(struct cv *cond_head, struct cv *entry)
+{
+	struct cv *iter = cond_head;
+	while (iter->next != NULL) {
+		if (iter->next == entry) {
+			iter->next = entry->next;
+		}
+		iter = iter->next;
+	}
+}
 /*
  * Initialize a condition variable.  Must be called before use.
  */
 void
 cv_init(struct cv *cvp, const char *desc)
 {
+	TRACE("%p", cvp);
 	cvp->cv_description = desc;
 	cvp->cv_waiters = 0;
-	PUSH_BACK(cvp);
+	cond_insert_head(&cond_head, cvp);
 }
 
 /*
@@ -122,6 +126,8 @@ cv_init(struct cv *cvp, const char *desc)
 void
 cv_destroy(struct cv *cvp)
 {
+	TRACE("%p", cvp);
+	//cond_erase(&cond_head, cvp);
 #ifdef INVARIANTS
 	struct sleepqueue *sq;
 
@@ -130,7 +136,6 @@ cv_destroy(struct cv *cvp)
 	sleepq_release(cvp);
 	KASSERT(sq == NULL, ("%s: associated sleep queue non-empty", __func__));
 #endif
-	ERASE(cvp);
 }
 
 /*
