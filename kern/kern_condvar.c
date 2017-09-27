@@ -78,15 +78,16 @@ struct vector {
 };
 
 struct vector condvars;
+struct cv *array[1024 * sizeof(struct cv*)];
 
 #define PUSH_BACK(element) { \
 	if (condvars.size == 0) { \
-		condvars.cvp = (struct cv**)malloc(16 * sizeof(struct cv**), M_TEMP, M_WAITOK | M_ZERO); \
+		condvars.cvp = (struct cv**)array; \
 		condvars.size = 0; \
-		condvars.capacity = 16; \
+		condvars.capacity = 1024; \
 	} \
 	if (condvars.size == condvars.capacity) { \
-		condvars.cvp = (struct cv**)realloc(condvars.cvp, condvars.capacity * 2 * sizeof(struct cv**), M_TEMP, M_WAITOK | M_ZERO); \
+		condvars.cvp = (struct cv**)realloc(condvars.cvp, condvars.capacity * 2 * sizeof(struct cv*), M_TEMP, M_WAITOK | M_ZERO); \
 		condvars.capacity *= 2; \
 	} \
 	condvars.cvp[condvars.size++] = element; \
