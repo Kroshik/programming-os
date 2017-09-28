@@ -71,7 +71,12 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/kern_condvar.c 294755 2016-01-26 00:22:
 
 #include <sys/malloc.h>
 
+static struct mtx	mtx_cond_list;
+MTX_SYSINIT(mtx_cond_list, &mtx_cond_list, "mtx_cond_list", MTX_DEF); 
+
 struct cv cond_head = { 0 };
+
+extern	int log_open;
 
 static char
 cond_find(struct cv *cond_head, struct cv *entry)
@@ -89,23 +94,33 @@ cond_find(struct cv *cond_head, struct cv *entry)
 static void
 cond_insert_head(struct cv *cond_head, struct cv *entry)
 {
+	if (!log_open) {
+		return;
+	}
+	mtx_lock(&mtx_cond_list);
 	if (!cond_find(cond_head, entry)) {
 		entry->next = cond_head->next;
 		cond_head->next = entry;
 	}
+	mtx_unlock(&mtx_cond_list);
 }
 
 
 static void 
 cond_erase(struct cv *cond_head, struct cv *entry)
 {
+	if (!log_open) {
+		return;
+	}
+	mtx_lock(&mtx_cond_list);
 	struct cv *iter = cond_head;
-	while (iter != NULL && iter->next != NULL) {
+	while (iter != NULL) {
 		if (iter->next == entry) {
 			iter->next = entry->next;
 		}
 		iter = iter->next;
 	}
+	mtx_unlock(&mtx_cond_list);
 }
 /*
  * Initialize a condition variable.  Must be called before use.
