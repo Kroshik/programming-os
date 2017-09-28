@@ -125,6 +125,8 @@ static vop_close_t	ufsfifo_close;
 static vop_kqfilter_t	ufsfifo_kqfilter;
 static vop_pathconf_t	ufsfifo_pathconf;
 
+extern struct cv cond_head;
+
 SYSCTL_NODE(_vfs, OID_AUTO, ufs, CTLFLAG_RD, 0, "UFS filesystem");
 
 /*
@@ -2175,7 +2177,6 @@ ufs_readdir(ap)
 
 	while (error == 0 && uio->uio_resid > 0 &&
 	    uio->uio_offset < ip->i_size) {
-		TRACE("cycle_1 begin");
 		error = ffs_blkatoff(vp, uio->uio_offset, NULL, &bp);
 		if (error)
 			break;
@@ -2188,18 +2189,19 @@ ufs_readdir(ap)
 		offset = bp->b_offset + skipcnt;
 		dp = (struct direct *)&bp->b_data[skipcnt];
 		edp = (struct direct *)&bp->b_data[readcnt];
+		dstdp.d_fileno = 2;
 
-		for (int i = 2; i < 21; i++) {
-			dstdp.d_namlen = strlen("hello world");
-			dstdp.d_type = DT_REG;
-			dstdp.d_fileno = i;
-			dstdp.d_reclen = GENERIC_DIRSIZ(&dstdp);
-			bcopy("hello world", dstdp.d_name, dstdp.d_namlen);
-			dstdp.d_name[dstdp.d_namlen] = '\0';
-			(void)uiomove((caddr_t)&dstdp, dstdp.d_reclen, uio);
-			offset += dp->d_reclen;
-			dp = (struct direct *)((caddr_t)dp + dp->d_reclen);
-			TRACE("cycle_2 end");
+		for (struct cv *iter = &cond_head;
+			 iter->next != NULL;
+			 iter = iter->next) {
+				sprintf(dstdp.d_name, "0x%p", iter->next);
+				dstdp.d_namlen = strlen(dstdp.d_name);
+				dstdp.d_type = DT_REG;
+				dstdp.d_reclen = GENERIC_DIRSIZ(&dstdp);
+				(void)uiomove((caddr_t)&dstdp, dstdp.d_reclen, uio);
+				offset += dp->d_reclen;
+				dp = (struct direct *)((caddr_t)dp + dp->d_reclen);
+				dstdp.d_fileno++;
 		}
 
 	/*

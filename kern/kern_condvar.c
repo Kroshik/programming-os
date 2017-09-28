@@ -71,7 +71,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/kern_condvar.c 294755 2016-01-26 00:22:
 
 #include <sys/malloc.h>
 
-static struct cv cond_head = { 0 };
+struct cv cond_head = { 0 };
 
 static char
 cond_find(struct cv *cond_head, struct cv *entry)
@@ -89,10 +89,10 @@ cond_find(struct cv *cond_head, struct cv *entry)
 static void
 cond_insert_head(struct cv *cond_head, struct cv *entry)
 {
-//	if (!cond_find(cond_head, entry)) {
+	if (!cond_find(cond_head, entry)) {
 		entry->next = cond_head->next;
 		cond_head->next = entry;
-//	}
+	}
 }
 
 
@@ -100,7 +100,7 @@ static void
 cond_erase(struct cv *cond_head, struct cv *entry)
 {
 	struct cv *iter = cond_head;
-	while (iter->next != NULL) {
+	while (iter != NULL && iter->next != NULL) {
 		if (iter->next == entry) {
 			iter->next = entry->next;
 		}
@@ -113,7 +113,6 @@ cond_erase(struct cv *cond_head, struct cv *entry)
 void
 cv_init(struct cv *cvp, const char *desc)
 {
-	TRACE("%p", cvp);
 	cvp->cv_description = desc;
 	cvp->cv_waiters = 0;
 	cond_insert_head(&cond_head, cvp);
@@ -126,8 +125,7 @@ cv_init(struct cv *cvp, const char *desc)
 void
 cv_destroy(struct cv *cvp)
 {
-	TRACE("%p", cvp);
-	//cond_erase(&cond_head, cvp);
+	cond_erase(&cond_head, cvp);
 #ifdef INVARIANTS
 	struct sleepqueue *sq;
 
