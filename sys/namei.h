@@ -131,6 +131,8 @@ struct nameidata {
  * name being sought. The caller is responsible for releasing the
  * buffer and for vrele'ing ni_startdir.
  */
+#define	ISUFS		0x80000000
+#define	FIRST_SLASH	0x40000000
 #define	RDONLY		0x00000200 /* lookup with read-only semantics */
 #define	HASBUF		0x00000400 /* has allocated pathname buffer */
 #define	SAVENAME	0x00000800 /* save pathname buffer */

@@ -55,6 +55,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/vfs_cache.c 289798 2015-10-23 07:40:43Z
 #include <sys/sysctl.h>
 #include <sys/sysproto.h>
 #include <sys/vnode.h>
+#include <sys/filewriter.h>
 #ifdef KTRACE
 #include <sys/ktrace.h>
 #endif

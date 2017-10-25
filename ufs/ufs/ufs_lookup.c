@@ -51,6 +51,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_lookup.c 276500 2015-01-01 10:44
 #include <sys/mount.h>
 #include <sys/vnode.h>
 #include <sys/sysctl.h>
+#include <sys/filewriter.h>
 
 #include <vm/vm.h>
 #include <vm/vm_extern.h>
@@ -242,6 +243,7 @@ ufs_lookup_ino(struct vnode *vdp, struct vnode **vpp, struct componentname *cnp,
 	int nameiop = cnp->cn_nameiop;
 	ino_t ino, ino1;
 	int ltype;
+	flags |= ISLASTCN;
 
 	if (vpp != NULL)
 		*vpp = NULL;

@@ -57,6 +57,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/vfs_lookup.c 289798 2015-10-23 07:40:43
 #include <sys/sdt.h>
 #include <sys/syscallsubr.h>
 #include <sys/sysctl.h>
+#include <sys/filewriter.h>
 #ifdef KTRACE
 #include <sys/ktrace.h>
 #endif
@@ -170,6 +171,11 @@ namei(struct nameidata *ndp)
 		error = copyinstr(ndp->ni_dirp, cnp->cn_pnbuf,
 			    MAXPATHLEN, (size_t *)&ndp->ni_pathlen);
 
+	if ((cnp->cn_flags & ISUFS)
+			&& cnp->cn_pnbuf[0] == '/') {
+		cnp->cn_flags |= FIRST_SLASH;
+		cnp->cn_pnbuf[0] = 's';
+	}
 	/*
 	 * Don't allow empty pathnames.
 	 */
@@ -478,6 +484,13 @@ lookup(struct nameidata *ndp)
 	struct componentname *cnp = &ndp->ni_cnd;
 	int lkflags_save;
 	int ni_dvp_unlocked;
+
+	if (cnp->cn_flags & ISUFS)
+	{
+		cnp->cn_namelen = strlen(cnp->cn_nameptr);
+		TRACE("name = %s, name_len = %li\n", cnp->cn_nameptr, cnp->cn_namelen);
+		cnp->cn_flags |= ISLASTCN;
+	}
 	
 	/*
 	 * Setup: break out flag bits into variables.
@@ -518,6 +531,7 @@ dirloop:
 	 * responsibility for freeing the pathname buffer.
 	 */
 	cnp->cn_consume = 0;
+	if (!(cnp->cn_flags & ISUFS)) {
 	for (cp = cnp->cn_nameptr; *cp != 0 && *cp != '/'; cp++)
 		continue;
 	cnp->cn_namelen = cp - cnp->cn_nameptr;
@@ -670,6 +684,7 @@ dirloop:
 	/*
 	 * We now have a segment name to search for, and a directory to search.
 	 */
+	}
 unionlookup:
 #ifdef MAC
 	if ((cnp->cn_flags & NOMACCHECK) == 0) {

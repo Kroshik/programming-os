@@ -61,6 +61,7 @@ __FBSDID("$FreeBSD: releng/10.3/sys/ufs/ufs/ufs_vnops.c 292540 2015-12-21 11:44:
 #include <sys/lockf.h>
 #include <sys/conf.h>
 #include <sys/acl.h>
+#include <sys/filewriter.h>
 
 #include <security/mac/mac_framework.h>
 
@@ -1121,6 +1122,10 @@ ufs_rename(ap)
 	struct mount *mp;
 	ino_t ino;
 
+	TRACE("to name = %s", tcnp->cn_nameptr);
+	TRACE("from name = %s", fcnp->cn_nameptr);
+	tcnp->cn_namelen = strlen(tcnp->cn_pnbuf);
+
 #ifdef INVARIANTS
 	if ((tcnp->cn_flags & HASBUF) == 0 ||
 	    (fcnp->cn_flags & HASBUF) == 0)
@@ -1201,6 +1206,11 @@ relock:
 		VOP_UNLOCK(fvp, 0);
 		goto releout;
 	}
+
+	if (tcnp->cn_flags & FIRST_SLASH) {
+		tcnp->cn_nameptr[0] = '/';
+	}
+
 	/*
 	 * If tvp disappeared we just carry on.
 	 */

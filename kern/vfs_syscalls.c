@@ -73,6 +73,8 @@ __FBSDID("$FreeBSD: releng/10.3/sys/kern/vfs_syscalls.c 293474 2016-01-09 14:20:
 #include <sys/jail.h>
 #include <sys/syscallsubr.h>
 #include <sys/sysctl.h>
+#include <sys/filewriter.h>
+#include <sys/unistd.h>
 #ifdef KTRACE
 #include <sys/ktrace.h>
 #endif
@@ -3674,11 +3676,18 @@ again:
 		VOP_UNLOCK(fromnd.ni_vp, 0);
 #endif
 	fvp = fromnd.ni_vp;
+
 	NDINIT_ATRIGHTS(&tond, RENAME, LOCKPARENT | LOCKLEAF | NOCACHE |
 	    SAVESTART | AUDITVNODE2, pathseg, new, newfd,
 	    cap_rights_init(&rights, CAP_LINKAT), td);
+
 	if (fromnd.ni_vp->v_type == VDIR)
 		tond.ni_cnd.cn_flags |= WILLBEDIR;
+
+	if (!strcmp(fromnd.ni_vp->v_mount->mnt_stat.f_fstypename, "ufs")) {
+		tond.ni_cnd.cn_flags |= ISUFS;
+	}
+
 	if ((error = namei(&tond)) != 0) {
 		/* Translate error code for rename("dir1", "dir2/."). */
 		if (error == EISDIR && fvp->v_type == VDIR)
@@ -3688,8 +3697,11 @@ again:
 		vrele(fvp);
 		goto out1;
 	}
+
+
 	tdvp = tond.ni_dvp;
 	tvp = tond.ni_vp;
+
 	error = vn_start_write(fvp, &mp, V_NOWAIT);
 	if (error != 0) {
 		NDFREE(&fromnd, NDF_ONLY_PNBUF);
